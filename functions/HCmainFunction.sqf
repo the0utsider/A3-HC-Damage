@@ -19,16 +19,16 @@ fn_goko_hardcoreMain =
 		"_hitPoint"
 	];
 	
-	// all selections are: ["face_hub","neck","head","pelvis",,"spine2","spine3","body","arms","hands","legs","body"]		
-	//hit index : ["hitface","hitneck","hithead","hitpelvis","hitabdomen","hitdiaphragm","hitchest","hitbody","hitarms","hithands","hitlegs","incapacitated"]
+	// all selections are: ["face_hub","neck","head","pelvis","spine1","spine2","spine3","body","arms","hands","legs","body"]
+	// hit index : "hitface","hitneck","hithead","hitpelvis","hitabdomen","hitdiaphragm","hitchest","hitbody","hitarms","hithands","hitlegs","incapacitated"
 	
-	if !(_hitPoint in ["hitface", "hitneck", "hitpelvis", "hitdiaphragm", "hitchest"]) exitWith{};
+	if !(_hitPoint in ["hitface", "hitneck", "hitpelvis", "hitabdomen", "hitdiaphragm", "hitchest"]) exitWith{};
 	if (_projectile == "" || _damage > 1) exitWith{};
 
 	_getDamage = (getAllHitPointsDamage _unit)#2;
 	_PartsLeftOut = [_getDamage#2, _getDamage#7, _getDamage#9, _getDamage#10];
 
-	if (0.25 in _PartsLeftOut || !alive _unit) exitwith { if (goko_dev_debugger) then {systemchat "Warning: Unit doesn't have enough hitpoints for HC modifier!"};};
+	if (0.25 in _PartsLeftOut || !alive _unit) exitwith { if (goko_dev_debugger) then {systemchat "Warning: Unit doesn't have enough hitpoints / already dead!"};};
 
 	_upperChest = _getDamage#0 + _getDamage#1;
 	_chestDamage = _getDamage#4 + _getDamage#5 + _getDamage#6;
@@ -45,12 +45,11 @@ fn_goko_hardcoreMain =
 		_unit setVariable ["goko_setDamageChest", _chestDamage];
 	};
 
-	switch (true) do 
+	switch (_selection in ["face_hub", "neck", "pelvis", "spine1", "spine2", "spine3"]) do 
 	{ 
 		case (goko_damage_disableLegs && _getDamageGuts != _gutDamage) : fn_goko_SecondCaseFunctionFerGutArea;
 		case (goko_damage_fatalChestWounds isEqualTo 0 && _getDamageChest != _chestDamage) : fn_goko_ThirdCaseFunctionForChest;
 		case (goko_damage_fatalChestWounds isEqualTo 1 && _getDamageChest != _chestDamage) : fn_goko_ForthCaseFunctionForHands;
 		case (goko_damage_fatalHeadWounds && _getDamageUpperChest != _upperChest) : fn_goko_FirstCaseFunctionNeckArea;
-		default systemchat "ERROR: Something wrong with HC damage; unload medical mods if any."
 	}; 
 };
