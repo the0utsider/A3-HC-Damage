@@ -1,5 +1,5 @@
 /*	
-	subfunctions of add-on A3 Hardcore damage mod
+	subfunctions of add-on A3 Hardcore damage mod 
 	Author: Gokmen
 	website: github.com/the0utsider
 	Params: none
@@ -80,7 +80,7 @@ fn_goko_ForthCaseFunctionForHands =
 	//if (goko_damage_fatalChestWounds != 1 && (goko_setNeckDamage != _upperChest || goko_setAbdomenDamage != _gutDamage)) exitWith {};
 	//Upper body damage should add up to hands damage (which increases swing and makes it difficult operate weapons properly).Increases difficulty but not fatal.
 	_handDamageSolution = _getDamage#9 + (_chestDamage * goko_damage_multiplier);
-					//debug information for hands
+					//debug information for hands 
 					if (goko_dev_debugger) then
 					{
 						_handsaddupper = (_chestDamage * goko_damage_multiplier);

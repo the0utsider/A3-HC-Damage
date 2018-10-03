@@ -66,7 +66,7 @@ if(isClass(configFile >> "CfgPatches" >> "cba_settings")) then
 			"CHECKBOX", // setting type
 			["Enable dev debugger","Local setting. Should be useful."], // Pretty name shown inside the ingame settings menu. Can be stringtable entry.
 			"Goko Damage Modifier", // Pretty name of the category where the setting can be found. Can be stringtable entry.
-			false, // default
+			false, // default 
 			false, // "global" flag. Set this to true to always have this setting synchronized between all clients in multiplayer
 			{
 			} // function that will be executed once on mission start and every time the setting is changed.

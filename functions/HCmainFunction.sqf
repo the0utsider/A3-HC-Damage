@@ -2,8 +2,6 @@
 	main function of add-on A3 Hardcore damage mod
 	Author: Gokmen
 	website: github.com/the0utsider
-	
-	variable initialisations & optional CBA detection
 */
 
 fn_goko_hardcoreMain =
