@@ -1,5 +1,5 @@
 /*	
-	subfunctions of add-on A3 Hardcore damage mod
+	subfunctions of add-on A3 Hardcore damage mod 
 	Author: Gokmen
 	website: github.com/the0utsider
 	Params: none
