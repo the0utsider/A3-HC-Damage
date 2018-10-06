@@ -1,99 +1,153 @@
 /*	
-	subfunctions of add-on A3 Hardcore damage mod 
+	subfunctions of add-on A3 Hardcore damage mod
 	Author: Gokmen
 	website: github.com/the0utsider
 	Params: none
-	Sub functions that are called from switch in Main
+	Sub functions called from switch inside the main function
 */
 
-//Face and Neck damage should add up to Head damage.
-fn_goko_FirstCaseFunctionNeckArea =
+fn_goko_redirectDamageToHead =
 {
-	_headDamageSolution = _getDamage#2 + (_upperChest * goko_damage_multiplier);
-
-					//debug information for head
-					if (goko_dev_debugger) then
+	/// dynamic multiplier according to distance and weapon kind
+	_getWeaponMaxRange = getNumber (configfile >> "CfgWeapons" >> currentweapon _instigator >> "maxZeroing");
+	_normalizeMultiplierStart = _getWeaponMaxRange / 4;
+	_measuredDistance = _instigator distance2d _unit;
+	_calculateMultiplier = linearConversion [_normalizeMultiplierStart, _getWeaponMaxRange, _measuredDistance, goko_damage_multiplier, 1, true];
+	
+	_getHeadDamageAndAdd = _getDamage#2 + (_neckFaceDamage * _calculateMultiplier);
+					if (goko_dev_debugger) then		/// debug information for head
 					{
-						_headaddupper = (_upperChest * goko_damage_multiplier);
-							systemchat format [
-								"Total face and neck damage: %1, multiplier used: %2x, resulting in: %3. damageRedirect->(Head damage was: %4, amplified to: %5)",
-								_upperChest,
-								goko_damage_multiplier,
-								_headaddupper,
-								_getDamage#2,
-								_headDamageSolution
-							];
+						_headAddUpper = (_neckFaceDamage * _calculateMultiplier);
+						systemchat format [
+							"neck and face damage: [%1], multiplier: %2x, result: [%3]. Damage Redirected-> Head: [%5], was [%4] before.)",
+							_neckFaceDamage,
+							_calculateMultiplier,
+							_headAddUpper,
+							_getDamage#2,
+							_getHeadDamageAndAdd
+						];
+						
+						hint format [
+							"maximum range of used weapon: %1 meters,\n\n
+							Distance of victim was: %2 meters,\n\n
+							Applied multiplier according to distance: %3x
+							",
+							_getWeaponMaxRange,
+							_measuredDistance,
+							_calculateMultiplier
+						];
 					};
-					
-	_unit setHitPointDamage ["hithead", _headDamageSolution];
-	_unit setVariable ["goko_setNeckDamage", _upperChest];
+	_unit setHitPointDamage ["hithead", _getHeadDamageAndAdd];
+	_unit setVariable ["goko_storeNeckDamage", _neckFaceDamage];
 };
 
-//Diaphragm and Pelvis damage should add up to legs damage.		
-fn_goko_SecondCaseFunctionFerGutArea =
+fn_goko_redirectDamageToLegs =
 {
-	_legDamageSolution = _getDamage#11 + (_gutDamage * goko_damage_multiplier);
-
-					//debug information for legs
-					if (goko_dev_debugger) then
-					{
-						_legaddupper = (_gutDamage * goko_damage_multiplier);
-							systemchat format [
-								"Total pelvis damage: %1, multiplier used: %2x, resulting in: %3. damageRedirect->(Leg damage was: %4, amplified to: %5)",
-								_gutDamage,
-								goko_damage_multiplier,
-								_legaddupper,
-								_getDamage#10,
-								_legDamageSolution
-							];
-					};
-					
-	_unit setHitPointDamage ["hitlegs", _legDamageSolution];
-	_unit setVariable ["goko_setAbdomenDamage", _gutDamage]; 
-};
-
-//abdomen, diaphragm, chest damage should added to total body damage. Fatal.
-fn_goko_ThirdCaseFunctionForChest =
-{
-	_bodyDamageSolution = _getDamage#7 + (_chestDamage * goko_damage_multiplier);
+	_getWeaponMaxRange = getNumber (configfile >> "CfgWeapons" >> currentweapon _instigator >> "maxZeroing");
+	_normalizeMultiplierStart = _getWeaponMaxRange / 4;
+	_measuredDistance = _instigator distance2d _unit;
+	_calculateMultiplier = linearConversion [_normalizeMultiplierStart, _getWeaponMaxRange, _measuredDistance, goko_damage_multiplier, 1, true];
+	
+	_getLegDamageAndAdd = _getDamage#10 + (_gutDamage * _calculateMultiplier);
 
 					//debug information for chest
 					if (goko_dev_debugger) then
 					{
-						_chestaddupper = (_chestDamage * goko_damage_multiplier);
-							systemchat format [
-								"Total chest damage: %1, multiplier used: %2x, resulting in: %3. damageRedirect->(Body damage was: %4, amplified to: %5)",
-								_chestDamage,
-								goko_damage_multiplier,
-								_chestaddupper,
-								_getDamage#7,
-								_bodyDamageSolution
-							];
+						_legAddUpper = (_gutDamage * _calculateMultiplier);
+						systemchat format [
+							"pelvis damage: [%1], multiplier: %2x, result: [%3]. Damage Redirected-> Legs: [%5], was [%4] before.",
+							_gutDamage,
+							_calculateMultiplier,
+							_legAddUpper,
+							_getDamage#10,
+							_getLegDamageAndAdd
+						];
+						
+						hint format [
+							"maximum range of used weapon: %1 meters,\n\n
+							Distance between shooter and victim was: %2 meters,\n\n
+							Applied multiplier according to distance: %3x
+							",
+							_getWeaponMaxRange,
+							_measuredDistance,
+							_calculateMultiplier
+						];
 					};
-	
-	_unit setHitPointDamage ["hitbody", _bodyDamageSolution];
-	_unit setVariable ["goko_setDamageChest", _chestDamage]; 
+					
+	_unit setHitPointDamage ["hitlegs", _getLegDamageAndAdd];
+	_unit setVariable ["goko_storePelvisDamage", _gutDamage]; 
 };
 
-fn_goko_ForthCaseFunctionForHands =
+fn_goko_redirectDamageToBody =
 {
-	//if (goko_damage_fatalChestWounds != 1 && (goko_setNeckDamage != _upperChest || goko_setAbdomenDamage != _gutDamage)) exitWith {};
-	//Upper body damage should add up to hands damage (which increases swing and makes it difficult operate weapons properly).Increases difficulty but not fatal.
-	_handDamageSolution = _getDamage#9 + (_chestDamage * goko_damage_multiplier);
-					//debug information for hands 
+	_getWeaponMaxRange = getNumber (configfile >> "CfgWeapons" >> currentweapon _instigator >> "maxZeroing");
+	_normalizeMultiplierStart = _getWeaponMaxRange / 4;
+	_measuredDistance = _instigator distance2d _unit;
+	_calculateMultiplier = linearConversion [_normalizeMultiplierStart, _getWeaponMaxRange, _measuredDistance, goko_damage_multiplier, 1, true];
+	
+	_getBodyDamageAndAdd = _getDamage#7 + (_chestDamage * _calculateMultiplier);
+
+					//debug information for chest
 					if (goko_dev_debugger) then
 					{
-						_handsaddupper = (_chestDamage * goko_damage_multiplier);
-							systemchat format [
-								"Total chest damage: %1, multiplier used: %2x, resulting in: %3. damageRedirect->(Hands damage were: %4, amplified to: %5)",
-								_chestDamage,
-								goko_damage_multiplier,
-								_handsaddupper,
-								_getDamage#9,
-								_handDamageSolution
-							];
+						_chestAddUpper = (_chestDamage * _calculateMultiplier);
+						systemchat format [
+							"chest damage: [%1], multiplier: %2x, result: [%3].	Damage Redirected-> Body: [%5], was [%4] before.",
+							_chestDamage,
+							_calculateMultiplier,
+							_chestAddUpper,
+							_getDamage#7,
+							_getBodyDamageAndAdd
+						];
+						
+						hint format [
+							"maximum range of used weapon: %1 meters,\n\n
+							Distance between shooter and victim was: %2 meters,\n\n
+							Applied multiplier according to distance: %3x
+							",
+							_getWeaponMaxRange,
+							_measuredDistance,
+							_calculateMultiplier
+						];
 					};
+	
+	_unit setHitPointDamage ["hitbody", _getBodyDamageAndAdd];
+	_unit setVariable ["goko_storeDamageChest", _chestDamage]; 
+};
 
-	_unit setHitPointDamage ["hithands", _handDamageSolution];
-	_unit setVariable ["goko_setDamageChest", _chestDamage]; 
+fn_goko_redirectDamageToHands =
+{
+	_getWeaponMaxRange = getNumber (configfile >> "CfgWeapons" >> currentweapon _instigator >> "maxZeroing");
+	_normalizeMultiplierStart = _getWeaponMaxRange / 4;
+	_measuredDistance = _instigator distance2d _unit;
+	_calculateMultiplier = linearConversion [_normalizeMultiplierStart, _getWeaponMaxRange, _measuredDistance, goko_damage_multiplier, 1, true];
+	
+	_getHandsDamageAndAdd = _getDamage#9 + (_chestDamage * _calculateMultiplier);
+
+					//debug information for chest
+					if (goko_dev_debugger) then
+					{
+						_chestAddUpper = (_chestDamage * _calculateMultiplier);
+						systemchat format [
+							"chest damage: [%1], multiplier: %2x, result: [%3].	Damage Redirected-> Hands: [%5], was [%4] before.",
+							_chestDamage,
+							_calculateMultiplier,
+							_chestAddUpper,
+							_getDamage#9,
+							_getHandsDamageAndAdd
+						];
+						
+						hint format [
+							"maximum range of used weapon: %1 meters,\n\n
+							Distance between shooter and victim was: %2 meters,\n\n
+							Applied multiplier according to distance: %3x
+							",
+							_getWeaponMaxRange,
+							_measuredDistance,
+							_calculateMultiplier
+						];
+					};
+	
+	_unit setHitPointDamage ["hithands", _getHandsDamageAndAdd];
+	_unit setVariable ["goko_storeDamageChest", _chestDamage]; 
 };

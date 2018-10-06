@@ -31,7 +31,7 @@ if(isClass(configFile >> "CfgPatches" >> "cba_settings")) then
 		[
 			"goko_damage_multiplier", // Internal setting name, should always contain a tag! This will be the global variable which takes the value of the setting.
 			"SLIDER", // setting type
-			["Damage multiplication ratio:","Decide how much different wounds affect overall health of units. Default is 1.5x"], // Pretty name shown inside the ingame settings menu. Can be stringtable entry.
+			["Damage multiplication ratio:","Double-damage, quad or dank 4-20. Decide how damage should be amplified. Default is 1.5x"], // Pretty name shown inside the ingame settings menu. Can be stringtable entry.
 			"Goko Damage Modifier", // Pretty name of the category where the setting can be found. Can be stringtable entry.
 			[0.42,4.2,1.5,2], // default
 			true, // "global" flag. Set this to true to always have this setting synchronized between all clients in multiplayer
@@ -53,7 +53,7 @@ if(isClass(configFile >> "CfgPatches" >> "cba_settings")) then
 		[
 			"goko_damage_disableLegs", // Internal setting name, should always contain a tag! This will be the global variable which takes the value of the setting.
 			"CHECKBOX", // setting type
-			["Gut damage affects legs","Wound/damage value of pelvis and lower gut passed to legs."], // Pretty name shown inside the ingame settings menu. Can be stringtable entry.
+			["Gut damage affects legs","Wound/damage value of pelvis passed to legs."], // Pretty name shown inside the ingame settings menu. Can be stringtable entry.
 			"Goko Damage Modifier", // Pretty name of the category where the setting can be found. Can be stringtable entry.
 			true, // default
 			true, // "global" flag. Set this to true to always have this setting synchronized between all clients in multiplayer
@@ -66,7 +66,7 @@ if(isClass(configFile >> "CfgPatches" >> "cba_settings")) then
 			"CHECKBOX", // setting type
 			["Enable dev debugger","Local setting. Should be useful."], // Pretty name shown inside the ingame settings menu. Can be stringtable entry.
 			"Goko Damage Modifier", // Pretty name of the category where the setting can be found. Can be stringtable entry.
-			false, // default 
+			false, // default
 			false, // "global" flag. Set this to true to always have this setting synchronized between all clients in multiplayer
 			{
 			} // function that will be executed once on mission start and every time the setting is changed.
